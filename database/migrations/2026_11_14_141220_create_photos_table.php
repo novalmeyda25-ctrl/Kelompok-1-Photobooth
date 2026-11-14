@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor('photo_session_id')->constrained('photo_sessions')->onDelete('cascade');
+            $table->foreignId('photo_session_id')->constrained('photo_session')->onDelete('cascade');
             $table->foreignId('frame_id')->nullable()->constrained('frames')->onDelete('set null');
             $table->foreignId('filter_id')->nullable()->constrained('filters')->onDelete('set null');
             $table->string('result_image_path');
