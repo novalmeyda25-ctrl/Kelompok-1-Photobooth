@@ -1,7 +1,39 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PhotoController;
+use App\Http\Middleware\EnsureAdmin;
 
+// Halaman Utama (Bisa diakses bebas, ada tombol Login di pojok kanan)
 Route::get('/', function () {
-    return view('welcome');
+    return view('user.dashboard');
+})->name('home');
+
+// Authentication Routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Route Khusus User yang Sudah Login
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('user.dashboard');
+    })->name('user.dashboard');
+
+    Route::get('/photo/download/{id}', [PhotoController::class, 'download'])->name('photo.download');
+});
+
+// Route Khusus Admin (Dilindungi EnsureAdmin)
+Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
 });
