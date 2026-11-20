@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Controllers\Admin\FilterController;
+use App\Http\Controllers\Admin\FrameController;
 
 // Halaman Utama (Bisa diakses bebas, ada tombol Login di pojok kanan)
 Route::get('/', function () {
@@ -29,6 +31,28 @@ Route::middleware(['auth'])->group(function () {
     })->name('user.dashboard');
 
     Route::get('/photo/download/{id}', [PhotoController::class, 'download'])->name('photo.download');
+});
+
+// Route Khusus Admin (Dilindungi EnsureAdmin)
+
+Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+    $totalFrame = \App\Models\Frame::count();
+    $totalFilter = \App\Models\Filter::count();
+    $totalPengguna = \App\Models\User::count();
+
+    return view('admin.dashboard', compact(
+        'totalFrame',
+        'totalFilter',
+        'totalPengguna'
+    ));
+})->name('dashboard');
+
+    // Kelola Filter
+    Route::resource('filters', FilterController::class);
+
+    // Kelola Frame
+Route::resource('frames', FrameController::class);
 });
 
 // Route Khusus Admin (Dilindungi EnsureAdmin)

@@ -13,6 +13,10 @@ class Frame extends Model
         'frame_category_id',
         'name',
         'image_path',
+        'is_active'
+    ];
+
+  
     ];
 
     // Relasi: Frame milik satu FrameCategory
