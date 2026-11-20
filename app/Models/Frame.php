@@ -13,13 +13,10 @@ class Frame extends Model
         'frame_category_id',
         'name',
         'image_path',
+        'is_active'
     ];
 
-    // Relasi: Frame milik satu FrameCategory
-    public function category()
-    {
-        return $this->belongsTo(FrameCategory::class, 'frame_category_id');
-    }
+  
 
     // Relasi: Frame digunakan oleh banyak Photo
     public function photos()
