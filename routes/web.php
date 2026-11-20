@@ -54,3 +54,10 @@ Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')
     // Kelola Frame
 Route::resource('frames', FrameController::class);
 });
+
+// Route Khusus Admin (Dilindungi EnsureAdmin)
+Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+});
