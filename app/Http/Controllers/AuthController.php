@@ -28,10 +28,10 @@ class AuthController extends Controller
 
             // Deteksi otomatis role user atau admin
             if ($user->role === 'admin') {
-                return redirect()->intended(route('admin.dashboard'));
+                return redirect()->route('admin.dashboard');
             }
 
-            return redirect()->intended(route('home'));
+            return redirect()->route('home');
         }
 
         return back()->withErrors([

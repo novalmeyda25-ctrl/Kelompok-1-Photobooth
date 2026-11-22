@@ -1,0 +1,482 @@
+/* WhimshyBooth - Custom CSS */
+
+/* Sembunyikan scrollbar */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Efek mirror */
+.mirror-active {
+    transform: scaleX(-1);
+}
+
+/* Mood Live Video Filters */
+.filter-original {
+    filter: none;
+}
+
+.filter-soft-glow {
+    filter: contrast(102%) brightness(108%) saturate(118%)
+        sepia(8%) hue-rotate(-8deg);
+}
+
+.filter-golden-hour {
+    filter: contrast(106%) brightness(105%) saturate(130%)
+        sepia(28%);
+}
+
+.filter-dreamy {
+    filter: contrast(98%) brightness(112%) saturate(125%)
+        hue-rotate(295deg);
+}
+
+header {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+header.navbar-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Hilangkan scrollbar Find Your Little Frame */
+#carousel-track {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#carousel-track::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.filter-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.filter-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-scroll {
+    cursor: grab;
+    user-select: none;
+}
+
+.filter-scroll.dragging {
+    cursor: grabbing;
+}
+
+.filter-scroll .filter-item {
+    user-select: none;
+}
+
+/* HOME BACKGROUND */
+#hero {
+    background-image: url('/images/whimsybooth/background.jpg');
+    background-size: cover;
+    background-position: center 70%;
+    background-repeat: no-repeat;
+
+    min-height: 88vh;
+    position: relative;
+}
+
+#hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 240, 250, 0.15);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#hero > div.relative {
+    position: relative;
+    z-index: 1;
+}
+
+/* STRONG FAIRY GLOW */
+#hero h1 {
+    text-shadow:
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px #ffb6e6,
+        0 0 35px #ff69b4,
+        0 0 55px #ff1493,
+        0 0 75px rgba(255, 215, 100, 0.8);
+
+    animation: strong-fairy-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes strong-fairy-pulse {
+    0% {
+        text-shadow:
+            0 0 4px #fff,
+            0 0 8px #ffc8ec,
+            0 0 15px #ff69b4,
+            0 0 25px #ff1493,
+            0 0 35px rgba(255, 215, 100, 0.5);
+    }
+
+    100% {
+        text-shadow:
+            0 0 8px #fff,
+            0 0 18px #fff,
+            0 0 30px #ffb6e6,
+            0 0 50px #ff69b4,
+            0 0 75px #ff1493,
+            0 0 90px rgba(255, 230, 120, 0.9);
+    }
+}
+
+/* Individual magical letters */
+#hero h1 .magic-letter {
+    display: inline-block;
+    transition:
+        transform 0.3s ease,
+        color 0.3s ease,
+        text-shadow 0.3s ease;
+}
+
+#hero h1 .magic-letter:hover {
+    transform: translateY(-12px) scale(1.2) rotate(-5deg);
+
+    color: #fff;
+
+    text-shadow:
+        0 0 5px #fff,
+        0 0 15px #ffb6e6,
+        0 0 30px #ff69b4,
+        0 0 50px #ff1493,
+        0 0 60px #ffe680;
+}
+
+/* ===== HERO: LOTUS DI SEBELAH KANAN TEKS ===== */
+#hero-lotus {
+    position: relative;
+    z-index: 5;
+}
+
+#hero-lotus .wb-lotus-float {
+    filter: drop-shadow(0 0 26px rgba(255, 150, 210, 0.75));
+}
+
+#hero-lotus .wb-aura {
+    opacity: 0.9;
+    animation: hero-aura 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes hero-aura {
+    from { opacity: 0.6; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.07); }
+}
+
+/* Saat datang dari landing page */
+html.wb-arriving #hero { overflow: visible; }
+html.wb-arriving body { overflow-x: hidden; }
+
+#hero-text.hero-arrive {
+    opacity: 0;
+    transform: translateX(14vw);
+}
+
+#hero-text.hero-arrive.hero-in {
+    opacity: 1;
+    transform: none;
+    transition: opacity 1.1s ease, transform 1.4s cubic-bezier(.22, .8, .3, 1);
+}
+
+@media (max-width: 1023px) {
+    #hero-text.hero-arrive { transform: translateY(24px); }
+}
+
+/* FAIRY ENCHANT BANNER */
+.fairy-enchant-banner {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -8px;
+    margin-bottom: 4px;
+    overflow: visible;
+}
+
+.fairy-enchant-banner img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 3px 8px rgba(180, 120, 80, 0.12));
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .fairy-enchant-banner {
+        margin-top: -4px;
+        margin-bottom: 0;
+    }
+
+    .fairy-enchant-banner img {
+        width: 100%;
+    }
+}
+
+.fairy-enchant-banner {
+    transform: translateY(-10px);
+}
+
+/* PINK FAIRY GLOW */
+.fairy-enchant-banner img {
+    filter:
+        drop-shadow(0 0 5px rgba(255, 105, 180, 0.9))
+        drop-shadow(0 0 12px rgba(255, 105, 180, 0.8))
+        drop-shadow(0 0 25px rgba(255, 182, 220, 0.7))
+        drop-shadow(0 0 40px rgba(255, 80, 160, 0.5));
+}
+.fairy-enchant-banner img {
+    animation: fairyPinkGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes fairyPinkGlow {
+    0% {
+        filter:
+            drop-shadow(0 0 5px rgba(255, 105, 180, 0.6))
+            drop-shadow(0 0 12px rgba(255, 105, 180, 0.4))
+            drop-shadow(0 0 20px rgba(255, 182, 220, 0.3));
+    }
+
+    100% {
+        filter:
+            drop-shadow(0 0 10px rgba(255, 105, 180, 1))
+            drop-shadow(0 0 25px rgba(255, 105, 180, 0.9))
+            drop-shadow(0 0 45px rgba(255, 80, 160, 0.7))
+            drop-shadow(0 0 60px rgba(255, 182, 220, 0.5));
+    }
+}
+
+#frames {
+    background-image: url('/images/whimsybooth/find-frame-bg.jpg') !important;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* =================================
+   FAIRY 04 COLLECTIONS
+================================= */
+
+#frames .rounded-full.bg-white.border {
+    position: relative;
+    overflow: visible !important;
+    z-index: 2;
+}
+
+#frames > div:first-child > div:first-child .rounded-full.bg-white.border::after {
+    content: "";
+    position: absolute;
+
+    width: 120px;
+    height: 140px;
+
+    background-image: url('/images/whimsybooth/pink-fairy.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* Posisi peri */
+    left: -80px;
+    top: -80px;
+
+    /* Miring ke kanan */
+    transform: rotate(80deg);
+
+    z-index: 99;
+    pointer-events: none;
+
+    /* Cahaya pink-putih */
+    filter:
+        drop-shadow(0 0 5px #ffffff)
+        drop-shadow(0 0 12px #ffc0e5)
+        drop-shadow(0 0 25px #ff69b4)
+        drop-shadow(0 0 45px #ff1493)
+        drop-shadow(0 0 65px #ff69b4);
+
+    animation: fairy-glow 1.2s ease-in-out infinite alternate;
+}
+
+/* KEDIPAN CAHAYA */
+@keyframes fairy-glow {
+    0% {
+        filter:
+            drop-shadow(0 0 5px white)
+            drop-shadow(0 0 12px #ffb6df)
+            drop-shadow(0 0 25px #ff69b4)
+            drop-shadow(0 0 40px #ff1493);
+
+        transform: rotate(18deg) scale(0.95);
+    }
+
+    100% {
+        filter:
+            drop-shadow(0 0 12px white)
+            drop-shadow(0 0 25px #ffc0e5)
+            drop-shadow(0 0 45px #ff69b4)
+            drop-shadow(0 0 70px #ff1493)
+            drop-shadow(0 0 90px #ff69b4);
+
+        transform: rotate(18deg) scale(1.08);
+    }
+}
+
+#carousel-track {
+    cursor: grab;
+    overflow-x: auto;
+    touch-action: pan-x;
+    user-select: none;
+}
+/* ===== FAQ SECTION: PINK DREAM + FLOWER ===== */
+
+#faq {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+
+    background-image:
+        url('/images/whimsybooth/faq-flower.png'),
+        url('/images/whimsybooth/faq-background.jpg');
+
+    background-repeat: no-repeat, no-repeat;
+
+    background-position:
+        left -50px top -17px,
+        center center;
+
+    background-size:
+        auto 55%,
+        cover;
+}
+
+/* Glow terlokalisasi di area bunga */
+#faq::before {
+    content: "";
+    position: absolute;
+
+    left: -50px;
+    top: -17px;
+
+    width: 400px;
+    height: 400px;
+
+    pointer-events: none;
+    z-index: 1;
+
+    background: radial-gradient(
+        ellipse,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 182, 230, 0.65) 30%,
+        rgba(255, 105, 180, 0.4) 55%,
+        transparent 75%
+    );
+
+    mix-blend-mode: screen;
+    animation: faq-flower-blink 1s ease-in-out infinite alternate;
+}
+
+@keyframes faq-flower-blink {
+    0% {
+        opacity: 0.15;
+        transform: scale(0.85);
+        filter: blur(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1.1);
+        filter: blur(15px);
+    }
+}
+
+/* Layer konten FAQ */
+#faq > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Card pertanyaan */
+#faq .faq-item {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(252, 231, 243, 0.9);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+#faq .faq-item:hover {
+    border-color: #BE185D;
+    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.15);
+}
+
+/* Tablet */
+@media (max-width: 1023px) {
+    #faq {
+        background-size:
+            auto 65%,
+            cover;
+
+        background-position:
+            left center,
+            center center;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    #faq {
+        background-size:
+            auto 40%,
+            cover;
+
+        background-position:
+            left top,
+            center center;
+    }
+}
+
+/* ===== FOOTER PINK ===== */
+footer {
+    background: #f3c4da !important;
+}
+
+/* ===== EMAIL NEWSLETTER: HILANGKAN GARIS ===== */
+footer input[type="email"] {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Hilangkan garis saat email diklik */
+footer input[type="email"]:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Kalau input dibungkus container dengan border */
+footer input[type="email"] {
+    border-radius: 12px;
+}
+

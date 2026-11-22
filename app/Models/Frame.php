@@ -16,8 +16,6 @@ class Frame extends Model
         'is_active'
     ];
 
-  
-    ];
 
     // Relasi: Frame milik satu FrameCategory
     public function category()

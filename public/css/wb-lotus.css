@@ -1,0 +1,21 @@
+.wb-lotus{position:relative;width:100%;transform-origin:50% 53%;will-change:transform}
+.wb-aura{position:absolute;left:-10%;right:-10%;top:-15%;bottom:-5%;pointer-events:none;opacity:.5;
+  background:radial-gradient(ellipse at 54% 62%,rgba(255,170,220,.6),rgba(255,200,235,.25) 45%,transparent 70%);
+  transition:opacity 2s ease}
+.wb-lotus-float{position:relative;aspect-ratio:1535/1024;animation:wb-float 4.5s ease-in-out infinite}
+@keyframes wb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.wb-pieces{position:absolute;inset:0;opacity:0;transition:opacity .6s ease}
+.is-ready .wb-pieces{opacity:1}
+.wb-piece{position:absolute;inset:0;background-image:var(--wb-photo);background-size:100% 100%;background-repeat:no-repeat;
+  transform-origin:54.4% 75.2%;
+  transform:rotate(var(--c)) scale(var(--sx),var(--sy)) rotate(var(--bn));
+  opacity:var(--o0);will-change:transform;
+  transition:transform 2.2s cubic-bezier(.4,.05,.25,1) var(--d),opacity 1.2s ease calc(var(--d) + .3s)}
+.wb-stage.is-bloom .wb-piece,.wb-bloomed .wb-piece{transform:rotate(0deg) scale(1,1) rotate(0deg);opacity:1}
+.wb-instant .wb-piece{transition:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  .wb-lotus-float{animation:none}
+  .wb-piece,.wb-aura,.wb-lotus{transition:none!important}
+}

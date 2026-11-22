@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -17,19 +17,19 @@
         </div>
 
         {{-- Error Alert --}}
-        @if ($errors->any())
-            <div class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl space-y-1">
-                @foreach ($errors->all() as $error)
+        <!__@if ($errors->any()) -->
+            <!--<div class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl space-y-1">
+                <!__@foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
-                @endforeach
+               <!-- @endforeach
             </div>
         @endif
 
         <!-- Form Login Universal (Admin & User) -->
-        <form action="{{ route('login') }}" method="POST" class="space-y-4">
+       <!-- <form action="{{ route('login') }}" method="POST" class="space-y-4">
             @csrf
             <div>
-                <label class="block text-xs font-semibold text-[#5A4D41] mb-1">Email</label>
+                <!--<label class="block text-xs font-semibold text-[#5A4D41] mb-1">Email</label>
                 <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@email.com"
                        class="w-full px-4 py-3 rounded-xl border border-[#EBE3D5] text-sm focus:outline-none focus:border-[#D9777F] bg-[#FAF8F5]">
             </div>
