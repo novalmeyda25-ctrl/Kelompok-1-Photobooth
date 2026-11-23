@@ -1,0 +1,238 @@
+.wb-landing{margin:0;overflow:hidden;background:#e9d8fb;font-family:Georgia,'Times New Roman',serif;color:#a23a7c}
+.wb-stage{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;
+  --wb-w:min(75vmin,650px);--wb-zoom:3;--wb-dx:0px;--wb-dy:0px}
+.wb-bg{position:absolute;inset:0;background:var(--wb-bg) center/cover no-repeat}
+
+.wb-hero{position:absolute;top:18%;left:0;right:0;text-align:center;padding:0 5%}
+.wb-logo{margin:0;font-style:italic;font-weight:400;font-size:clamp(2.8rem,9vw,6rem);
+  color:#d9448f;text-shadow:0 0 18px rgba(255,255,255,.9),0 0 36px rgba(255,150,210,.6)
+}
+.wb-tagline {
+  margin: .6rem 0 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 2.1vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: #a23a7c;
+}
+
+.wb-podium-wrap{position:absolute;left:50%;bottom:calc(23% - var(--wb-w) * .165);transform:translateX(-50%);z-index:20;
+  width:var(--wb-w)}
+
+.wb-lotus{position:relative;width:100%;transform-origin:50% 53%;will-change:transform}
+.wb-aura{position:absolute;left:-10%;right:-10%;top:-15%;bottom:-5%;pointer-events:none;opacity:.5;
+  background:radial-gradient(ellipse at 54% 62%,rgba(255,170,220,.6),rgba(255,200,235,.25) 45%,transparent 70%);
+  transition:opacity 2s ease}
+.wb-lotus-float{position:relative;aspect-ratio:1535/1024;animation:wb-float 4.5s ease-in-out infinite}
+@keyframes wb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.wb-pieces{position:absolute;inset:0;opacity:0;transition:opacity .6s ease}
+.wb-stage.is-ready .wb-pieces{opacity:1}
+.wb-piece{position:absolute;inset:0;background-image:var(--wb-photo);background-size:100% 100%;background-repeat:no-repeat;
+  transform-origin:54.4% 75.2%;
+  transform:rotate(var(--c)) scale(var(--sx),var(--sy)) rotate(var(--bn));
+  opacity:var(--o0);will-change:transform;
+  transition:transform 2.2s cubic-bezier(.4,.05,.25,1) var(--d),opacity 1.2s ease calc(var(--d) + .3s)}
+.wb-stage:not(.is-bloom) .wb-piece {
+    transform: rotate(var(--c)) scale(
+        calc(var(--sx) * 1.2),
+        calc(var(--sy) * 1.2)
+    ) rotate(var(--bn));
+}
+.wb-cta{position:absolute;left:50%;bottom: 9%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.7rem;width:max-content;max-width:90%}
+.wb-hint{padding:.45rem 1.4rem;border-radius:999px;background:rgba(255,255,255,.7);font-size:.95rem}
+.wb-btn{border:0;cursor:pointer;padding:.95rem 2.2rem;border-radius:999px;font:inherit;font-size:1.05rem;color:#fff;
+  background:linear-gradient(135deg,#f77fbe,#e0489a);box-shadow:0 8px 28px rgba(224,72,154,.45),inset 0 0 0 2px rgba(255,255,255,.35);
+  transition:transform .25s ease}
+.wb-btn:hover{transform:translateY(-2px) scale(1.03)}
+.wb-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+.wb-glow{position:absolute;inset:0;z-index:15;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 55%,rgba(255,255,255,.95),rgba(255,170,220,.7) 35%,rgba(200,170,255,.35) 65%,transparent 80%);
+  transition:opacity 2s ease}
+.wb-veil{position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 50%,#fff3fa,#ffd6ec 60%,#e8d4ff);transition:opacity .9s ease}
+.wb-sparkles{position:absolute;inset:0;z-index:25;pointer-events:none;overflow:hidden}
+.wb-sparkle{position:absolute;width:var(--s);height:var(--s);opacity:0;
+  background:radial-gradient(circle,#fff 0,rgba(255,200,235,.9) 35%,transparent 70%);border-radius:50%;
+  animation:wb-twinkle var(--d) ease-in-out var(--delay) forwards}
+@keyframes wb-twinkle{0%{opacity:0;transform:translateY(0) scale(.3)}40%{opacity:1}100%{opacity:0;transform:translateY(-60px) scale(1.2)}}
+
+.wb-stage.is-running .wb-cta,.wb-stage.is-running .wb-hero{opacity:0;transition:opacity .6s ease;pointer-events:none}
+.wb-stage.is-running .wb-lotus-float{animation:none}
+.wb-stage.is-running .wb-glow{opacity:.35}
+
+.wb-stage.is-bloom .wb-piece{transform:rotate(0deg) scale(.8,.8) rotate(0deg);opacity:1}
+.wb-stage.is-bloom .wb-aura{opacity:1}
+.wb-stage.is-bloom .wb-glow {
+    opacity: .75;
+}
+.wb-stage.is-zooming .wb-lotus{transform:translate(var(--wb-dx),var(--wb-dy)) scale(var(--wb-zoom));
+  transition:transform 2s cubic-bezier(.55,.05,.35,1)}
+.wb-stage.is-zooming .wb-glow{opacity:1}
+.wb-stage.is-fading .wb-lotus{opacity:0;transition:opacity 1s ease,transform 1s ease}
+.wb-stage.is-fading .wb-veil{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  .wb-lotus-float{animation:none}
+  .wb-piece,.wb-aura,.wb-glow,.wb-lotus{transition:none!important}
+  .wb-sparkle{display:none}
+  .wb-stage.is-fading .wb-veil{transition:opacity .4s ease}
+}
+@media (max-width:600px){.wb-stage{--wb-w:min(100vw,520px)}}
+
+.wb-cta {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .7rem;
+    width: max-content;
+    max-width: 90%;
+    z-index: 50;
+}
+
+.wb-btn {
+    position: relative;
+    z-index: 51;
+    width: 100%;
+    cursor: pointer;
+}
+
+.wb-stage.is-bloom .wb-aura {
+    animation: wb-magic-glow 6s ease-in-out infinite alternate;
+}
+
+@keyframes wb-magic-glow {
+    0% {
+        opacity: .35;
+        filter: brightness(1) blur(2px);
+    }
+    50% {
+        opacity: .7;
+        filter: brightness(1.2) blur(5px);
+    }
+    100% {
+        opacity: 1;
+        filter: brightness(1.3) blur(7px);
+    }
+}
+
+.wb-glow {
+    position: absolute;
+    inset: -15%;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        radial-gradient(ellipse at 50% 55%,
+            rgba(255,255,255,.8) 0%,
+            rgba(255,180,220,.6) 25%,
+            rgba(255,155,215,.35) 50%,
+            rgba(205,165,255,.2) 72%,
+            transparent 95%);
+    filter: blur(20px);
+    transition: opacity 3s ease;
+}
+
+/* FOTO POLAROID KIRI DAN KANAN */
+.wb-side-photos {
+    position: absolute;
+    inset: 0;
+    z-index: 18;
+    pointer-events: none;
+}
+
+.wb-photo-card {
+    position: absolute;
+    top: 44%;
+    width: clamp(120px, 14.5vw, 190px);
+    padding: 9px 9px 30px;
+    background: #fff8fc;
+    border-radius: 5px;
+    box-shadow:
+        0 10px 30px rgba(160,65,120,.25),
+        0 0 18px rgba(255,210,235,.5);
+}
+
+.wb-photo-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+.wb-photo-left {
+    left: 20%;
+    top:40%;
+    transform: perspective(800px) rotateY(15deg) rotateZ(-10deg);
+}
+
+.wb-photo-right {
+    right: 20%;
+    top:40%;
+    transform: perspective(800px) rotateY(-15deg) rotateZ(10deg);
+}
+
+
+.wb-photo-heart {
+    position: absolute;
+    bottom: 2px;
+    right: 12px;
+    color: #d95b9e;
+    font-size: 23px;
+}
+
+/* RESPONSIVE HP */
+@media (max-width: 600px) {
+    .wb-photo-card {
+        top: 44%;
+        width: 25vw;
+        padding: 5px 5px 20px;
+    }
+
+    .wb-photo-left {
+        left: 3%;
+    }
+
+    .wb-photo-right {
+        right: 3%;
+    }
+
+    .wb-photo-bow {
+        font-size: 20px;
+    }
+}
+
+.wb-photo-heart-second {
+    right: 175px;
+    bottom: 1px;
+    font-size: 25px;
+    transform: rotate(-10deg);
+}
+
+/* SOFT PINK GOLD GLOW */
+.wb-logo {
+    text-shadow:
+        0 0 8px rgba(255,255,255,.95),
+        0 0 18px rgba(255,140,190,.9),
+        0 0 32px rgba(255,100,170,.7),
+        0 0 42px rgba(255,205,130,.45),
+        0 0 55px rgba(255,160,210,.4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .wb-photo-card,
+    .wb-logo,
+    #wbLotus {
+        will-change: transform;
+    }
+
+    .wb-logo {
+        cursor: pointer;
+    }
+}
