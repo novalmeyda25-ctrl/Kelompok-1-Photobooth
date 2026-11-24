@@ -588,55 +588,102 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function captureSnapshot(slotIndex) {
 
-        const imgIndex = (slotIndex - 1) % dummyPoseImages.length;
-        const imageUrl = dummyPoseImages[imgIndex];
+    // Ambil video kamera asli
+    const video = document.getElementById('camera-video');
 
-        capturedImages[slotIndex] = imageUrl;
+    if (!video || !video.srcObject) {
+        alert('Kamera belum aktif.');
+        return;
+    }
 
-        const nextPoseUrl =
-            dummyPoseImages[slotIndex % dummyPoseImages.length];
+    // Pastikan video sudah memiliki ukuran
+    if (!video.videoWidth || !video.videoHeight) {
+        alert('Kamera belum siap. Tunggu sebentar lalu coba lagi.');
+        return;
+    }
 
-        if (dummyMirrorImg) {
-            dummyMirrorImg.src = nextPoseUrl;
-        }
+    // Gunakan canvas tersembunyi untuk mengambil frame kamera
+    const canvas = document.getElementById('hidden-canvas');
 
-        const slotEl = document.querySelector(
-            `.strip-slot[data-index="${slotIndex}"]`
+    if (!canvas) {
+        console.error('hidden-canvas tidak ditemukan.');
+        return;
+    }
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+
+    // Mirror mengikuti tampilan kamera
+    if (isMirrorOn) {
+        ctx.save();
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+
+        ctx.drawImage(
+            video,
+            0,
+            0,
+            width,
+            height
         );
 
-        if (slotEl) {
+        ctx.restore();
+    } else {
+        ctx.drawImage(
+            video,
+            0,
+            0,
+            width,
+            height
+        );
+    }
 
-            const textEl = slotEl.querySelector('.slot-text');
-            const photoEl = slotEl.querySelector('.slot-photo');
+    // Ambil hasil foto asli dari kamera
+    const imageUrl = canvas.toDataURL('image/png');
 
-            if (photoEl) {
-                photoEl.style.backgroundImage = `url('${imageUrl}')`;
-                photoEl.style.filter = currentFilterCss;
-                photoEl.classList.remove('hidden');
-            }
+    // Simpan foto asli ke slot
+    capturedImages[slotIndex] = imageUrl;
 
-            textEl?.classList.add('hidden');
+    // Masukkan foto asli ke photostrip
+    const slotEl = document.querySelector(
+        `.strip-slot[data-index="${slotIndex}"]`
+    );
 
-            if (
-                !slotEl.dataset.filled ||
-                slotEl.dataset.filled === 'false'
-            ) {
+    if (slotEl) {
 
-                slotEl.dataset.filled = 'true';
-                totalSnapped = Math.min(slotCount, totalSnapped + 1);
+        const textEl = slotEl.querySelector('.slot-text');
+        const photoEl = slotEl.querySelector('.slot-photo');
 
-                if (snappedCountEl) {
-                    snappedCountEl.innerText = totalSnapped;
-                }
-            }
+        if (photoEl) {
+            photoEl.style.backgroundImage = `url("${imageUrl}")`;
+            photoEl.style.filter = currentFilterCss;
+            photoEl.classList.remove('hidden');
+        }
 
-            if (shutterCaption) {
-                shutterCaption.innerHTML =
-                    `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">check_circle</span> Pose 0${slotIndex} captured with fairy charm!`;
-            }
+        textEl?.classList.add('hidden');
+
+        slotEl.dataset.filled = 'true';
+
+        totalSnapped = Math.min(
+            slotCount,
+            totalSnapped + 1
+        );
+
+        if (snappedCountEl) {
+            snappedCountEl.innerText = totalSnapped;
         }
     }
 
+    if (shutterCaption) {
+        shutterCaption.innerHTML =
+            `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">check_circle</span> Pose 0${slotIndex} captured with fairy charm!`;
+    }
+}
     // =====================================
     // ADVANCE SLOT
     // =====================================
@@ -685,11 +732,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             currentSlot = idx;
             markCurrent();
-
-            if (dummyMirrorImg) {
-                dummyMirrorImg.src =
-                    dummyPoseImages[(idx - 1) % dummyPoseImages.length];
-            }
 
             const photoEl = slot.querySelector('.slot-photo');
             const textEl = slot.querySelector('.slot-text');

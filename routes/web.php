@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+Route::get('/camera', function () {
+    return view('camera.index');
+});
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Middleware\EnsureAdmin;
