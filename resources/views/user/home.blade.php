@@ -262,7 +262,13 @@ document.addEventListener('keydown', function(e) {
 <div class="relative w-full aspect-[16/10] sm:aspect-[16/9.5] rounded-2xl overflow-hidden flex items-center justify-center transition-all duration-300 mt-4 border-2 border-[#FCE7F3] shadow-inner select-none bg-[#FFEBF0]" id="viewfinder">
 <!-- DUMMY LIVE STREAM PHOTOBOOTH CONTAINER -->
 <div class="relative w-full h-full overflow-hidden mirror-active transition-all duration-300 filter-original" id="dummy-camera-feed">
-<img alt="Whimshy Photobooth Live View" class="w-full h-full object-cover transition-transform duration-700" id="dummy-mirror-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtJWk3TJ9VqiRNV88Mwnel3QxKgk0lgFnnpaBe-k8N21h0jx0Ws6k5UuUnaXfx82D6XzbmVn0e3ofZaqOCoHGrwsl_T_Fs3wiqQf4e_MY7-TRoSWuAwXVuKNtk5T9uDdfEzkMAVWAMjKdv2dIM4kP5KKCcH5Lzg10jYNO4VYLLrp5IBPlOq8mabl2TTnmdGlA6WivTKLFjv7Ly9gYsGzisGrmJHKApxp0RAPwV6eE"/>
+<video
+    id="camera-video"
+    class="w-full h-full object-cover transition-transform duration-700"
+    autoplay
+    playsinline
+    muted>
+</video>
 <!-- Aesthetic Fairy Shimmer & Vignette Overlays -->
 <div class="absolute inset-0 bg-gradient-to-t from-[#970046]/35 via-transparent to-[#BE185D]/15 pointer-events-none"></div>
 <div class="absolute inset-0 bg-radial-gradient pointer-events-none mix-blend-soft-light opacity-50" style="background: radial-gradient(circle, transparent 55%, rgba(190, 24, 93, 0.4) 100%);"></div>
@@ -1004,4 +1010,107 @@ document.addEventListener('DOMContentLoaded', function () {
   }).observe(host);
 });
 </script>
-</body></html>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const video = document.getElementById('camera-video');
+
+    const allowButton = document.getElementById('btn-allow-camera');
+    const dismissButton = document.getElementById('btn-dismiss-camera');
+    const tryAgainButton = document.getElementById('btn-try-again-camera');
+    const reopenButton = document.getElementById('btn-reopen-permission');
+
+    const permissionModal = document.getElementById('camera-permission-modal');
+    const fallbackModal = document.getElementById('camera-dismissed-fallback');
+
+    const indicatorText = document.getElementById('studio-indicator-text');
+    const indicatorDot = document.getElementById('studio-indicator-dot');
+    const mirrorBadge = document.getElementById('viewfinder-mirror-badge');
+
+    let cameraStream = null;
+
+    async function startCamera() {
+
+        try {
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Browser tidak mendukung kamera.');
+            }
+
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            });
+
+            video.srcObject = cameraStream;
+
+            await video.play();
+
+            // Tutup popup izin
+            permissionModal.classList.add('hidden');
+
+            // Tutup fallback
+            fallbackModal.classList.add('hidden');
+            fallbackModal.classList.remove('flex');
+
+            // Update status
+            indicatorText.textContent = 'CAMERA READY';
+
+            indicatorDot.classList.remove('bg-amber-400');
+            indicatorDot.classList.add('bg-green-500');
+
+            mirrorBadge.textContent = 'Camera Live';
+
+        } catch (error) {
+
+            console.error('Camera error:', error);
+
+            permissionModal.classList.add('hidden');
+
+            fallbackModal.classList.remove('hidden');
+            fallbackModal.classList.add('flex');
+
+            indicatorText.textContent = 'CAMERA UNAVAILABLE';
+
+            indicatorDot.classList.remove('bg-amber-400');
+            indicatorDot.classList.add('bg-red-500');
+
+            mirrorBadge.textContent = 'Camera Unavailable';
+        }
+    }
+
+    // Tombol Allow Camera
+    allowButton.addEventListener('click', function () {
+        startCamera();
+    });
+
+    // Tombol Try Again
+    tryAgainButton.addEventListener('click', function () {
+        startCamera();
+    });
+
+    // Tombol Izin Akses Kamera di atas
+    reopenButton.addEventListener('click', function () {
+        permissionModal.classList.remove('hidden');
+        fallbackModal.classList.add('hidden');
+        fallbackModal.classList.remove('flex');
+    });
+
+    // Tombol Dismiss
+    dismissButton.addEventListener('click', function () {
+
+        permissionModal.classList.add('hidden');
+
+        fallbackModal.classList.remove('hidden');
+        fallbackModal.classList.add('flex');
+
+        indicatorText.textContent = 'CAMERA DISABLED';
+
+        mirrorBadge.textContent = 'Camera Permission Needed';
+    });
+
+});
+</script>
+</body>
+
+</html>
