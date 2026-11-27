@@ -15,6 +15,9 @@ class Frame extends Model
         'image_path',
     ];
 
+        'is_active'
+    ];
+
     // Relasi: Frame milik satu FrameCategory
     public function category()
     {

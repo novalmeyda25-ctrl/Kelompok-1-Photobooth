@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
+=======
+<!--<!DOCTYPE html>
+>>>>>>> 2177ae3e84c3c0045a5e7ae1e78f7208a445f39e
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -17,19 +21,34 @@
         </div>
 
         {{-- Error Alert --}}
+<<<<<<< HEAD
         @if ($errors->any())
             <div class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl space-y-1">
                 @foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
                 @endforeach
+=======
+        <!__@if ($errors->any()) -->
+            <!--<div class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl space-y-1">
+                <!__@foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+               <!-- @endforeach
+>>>>>>> 2177ae3e84c3c0045a5e7ae1e78f7208a445f39e
             </div>
         @endif
 
         <!-- Form Login Universal (Admin & User) -->
+<<<<<<< HEAD
         <form action="{{ route('login') }}" method="POST" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-xs font-semibold text-[#5A4D41] mb-1">Email</label>
+=======
+       <!-- <form action="{{ route('login') }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <!--<label class="block text-xs font-semibold text-[#5A4D41] mb-1">Email</label>
+>>>>>>> 2177ae3e84c3c0045a5e7ae1e78f7208a445f39e
                 <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@email.com"
                        class="w-full px-4 py-3 rounded-xl border border-[#EBE3D5] text-sm focus:outline-none focus:border-[#D9777F] bg-[#FAF8F5]">
             </div>

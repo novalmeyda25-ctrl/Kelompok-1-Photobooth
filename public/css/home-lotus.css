@@ -1,0 +1,82 @@
+/* ===== HERO HOME: teks di kiri, lotus mekar di kanan ===== */
+#hero > div.relative.wb-hero-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    max-width: 80rem;
+}
+
+#hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+#hero-lotus {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 440px;
+}
+
+.wb-lotus-pending {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 400px;
+}
+
+@media (min-width: 1024px) {
+    #hero > div.relative.wb-hero-grid {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    #hero-text {
+        align-items: flex-start;
+        text-align: left;
+        width: 52%;
+    }
+    #hero-text .flex-wrap {
+        justify-content: flex-start;
+    }
+    #hero-lotus {
+        max-width: none;
+        width: 48%;
+    }
+}
+
+/* Glow */
+#hero-lotus .wb-lotus-float {
+    filter: drop-shadow(0 0 26px rgba(255, 150, 210, 0.75));
+}
+
+#hero-lotus .wb-aura {
+    opacity: 0.9;
+    animation: hero-aura 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes hero-aura {
+    from { opacity: 0.6; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.07); }
+}
+
+/* Saat datang dari landing page */
+html.wb-arriving #hero { overflow: visible; }
+html.wb-arriving body { overflow-x: hidden; }
+
+#hero-text.hero-arrive {
+    opacity: 0;
+    transform: translateX(14vw);
+}
+
+#hero-text.hero-arrive.hero-in {
+    opacity: 1;
+    transform: none;
+    transition: opacity 1.1s ease, transform 1.4s cubic-bezier(.22, .8, .3, 1);
+}
+
+@media (max-width: 1023px) {
+    #hero-text.hero-arrive { transform: translateY(24px); }
+}
