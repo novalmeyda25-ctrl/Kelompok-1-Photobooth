@@ -5,10 +5,10 @@
     display: none;
 }
 
-/* Efek mirror */
+/* Efek mirror
 .mirror-active {
     transform: scaleX(-1);
-}
+} */
 
 /* Mood Live Video Filters */
 .filter-original {

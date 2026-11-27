@@ -1,10 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
-Route::get('/camera', function () {
-    return view('camera.index');
-});
+ Route::get('/camera', function () {
+     return view('camera.index');
+ });
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PhotoController;
@@ -78,6 +80,51 @@ Route::view('/', 'user.landing-whimsybooth')->name('landing.whimsybooth');
 Route::get('/home', function () {
     return view('user.home');
 })->name('home');
+
+// ========================================
+// MENYIMPAN FRAME PILIHAN
+// ========================================
+Route::post('/studio/choose-frame', function (Request $request) {
+
+    $validated = $request->validate([
+        'frame_id' => [
+            'required',
+            'string',
+            Rule::in([
+                'garden',
+                'fairy-whispers',
+                'sweet-memories',
+                'blush-petals',
+                'dummy-1',
+                'dummy-2',
+                'dummy-3',
+            ]),
+        ],
+    ]);
+
+    session(['wb_selected_frame' => $validated['frame_id']]);
+
+    return redirect()->route('studio');
+
+})->name('studio.choose-frame');
+
+
+// ========================================
+// HALAMAN STUDIO
+// ========================================
+Route::get('/studio', function () {
+
+    $selectedFrameId = session('wb_selected_frame');
+
+    if (!$selectedFrameId) {
+        return redirect()
+            ->route('home') // sebelumnya 'whimsy.home' (tidak ada)
+            ->with('warning', 'Silakan pilih frame terlebih dahulu.');
+    }
+
+    return view('user.studio', compact('selectedFrameId'));
+
+})->name('studio');
 
 // Download
 Route::get('/download', function () {
