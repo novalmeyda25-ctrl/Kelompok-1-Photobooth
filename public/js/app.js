@@ -1,9 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     // =====================================
-    // DUMMY PHOTO
+    // DUMMY PHOTO (dipakai jika ada slot yang belum difoto saat menyimpan)
     // =====================================
-
     const dummyPoseImages = [
         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600&auto=format&fit=crop',
@@ -14,14 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // STATE
     // =====================================
-
     let currentSlot = 1;
     let totalSnapped = 0;
     let timerDuration = 3;
     let isMirrorOn = true;
     let isFlashOn = false;
     let isCameraAllowed = false;
-
     let currentFilterCss = 'none';
     let currentFilterName = 'Original';
     let currentThemeFrameName = 'Garden';
@@ -34,25 +30,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // DOM ELEMENTS
     // =====================================
-
-    const dummyFeed = document.getElementById('dummy-camera-feed');
-    const dummyMirrorImg = document.getElementById('dummy-mirror-img');
-
+    const cameraVideo = document.getElementById('camera-video');
+    let cameraStream = null;
     const countdownLayer = document.getElementById('countdown-layer');
     const countdownNumber = document.getElementById('countdown-number');
     const flashEffect = document.getElementById('flash-effect');
-
     const snappedCountEl = document.getElementById('snapped-count');
     const shutterCaption = document.getElementById('shutter-caption');
-
     const btnToggleMirror = document.getElementById('btn-toggle-mirror');
     const lblMirror = document.getElementById('lbl-mirror');
     const mirrorBadge = document.getElementById('viewfinder-mirror-badge');
-
     const camLensDot = document.getElementById('cam-lens-dot');
     const camLensTitle = document.getElementById('cam-lens-title');
     const camLensMode = document.getElementById('cam-lens-mode');
-
     const mirrorDot = document.getElementById('viewfinder-mirror-dot');
     const studioIndicatorDot = document.getElementById('studio-indicator-dot');
     const studioIndicatorText = document.getElementById('studio-indicator-text');
@@ -60,185 +50,207 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // MODALS
     // =====================================
-
     const permissionModal = document.getElementById('camera-permission-modal');
     const dismissedFallback = document.getElementById('camera-dismissed-fallback');
-
     const btnAllowCamera = document.getElementById('btn-allow-camera');
     const btnDismissCamera = document.getElementById('btn-dismiss-camera');
     const btnTryAgainCamera = document.getElementById('btn-try-again-camera');
     const btnReopenPermission = document.getElementById('btn-reopen-permission');
-
     const modalGuide = document.getElementById('modal-guide');
     const modalLogin = document.getElementById('modal-login');
     const modalSave = document.getElementById('modal-save');
 
     // =====================================
-    // CAMERA DUMMY PERMISSION
+    // MIRROR VIEW
     // =====================================
-
-    function setCameraAllowedState() {
-
-        isCameraAllowed = true;
-
-        permissionModal?.classList.add('hidden');
-        dismissedFallback?.classList.add('hidden');
-        dismissedFallback?.classList.remove('flex');
-
-        if (camLensDot) {
-            camLensDot.className =
-                'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+    function updateMirrorView() {
+        if (cameraVideo) {
+            cameraVideo.style.setProperty(
+                'transform',
+                isMirrorOn ? 'scaleX(-1)' : 'none',
+                'important'
+            );
         }
-
-        if (camLensTitle) {
-            camLensTitle.innerText = 'STUDIO MIRROR ACTIVE';
-        }
-
-        if (camLensMode) {
-            camLensMode.innerText = 'ready to snap';
-        }
-
-        if (studioIndicatorDot) {
-            studioIndicatorDot.className =
-                'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
-        }
-
-        if (studioIndicatorText) {
-            studioIndicatorText.innerText = 'READY TO CAPTURE';
-        }
-
-        if (mirrorDot) {
-            mirrorDot.className =
-                'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping';
-        }
-
-        if (mirrorBadge) {
-            mirrorBadge.innerText = 'Studio Mirror Active';
-        }
-
-        if (shutterCaption) {
-            shutterCaption.innerHTML =
-                '<span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span> Kamera dummy siap digunakan! Klik tombol untuk berpose.';
-        }
-    }
-
-    function setCameraDismissedState() {
-
-        isCameraAllowed = false;
-
-        permissionModal?.classList.add('hidden');
-        dismissedFallback?.classList.remove('hidden');
-        dismissedFallback?.classList.add('flex');
-
-        if (camLensDot) {
-            camLensDot.className =
-                'w-2 h-2 rounded-full bg-rose-500';
-        }
-
-        if (camLensTitle) {
-            camLensTitle.innerText = 'CAMERA LENS IN REPOSE';
-        }
-
-        if (camLensMode) {
-            camLensMode.innerText = 'access denied';
-        }
-
-        if (studioIndicatorDot) {
-            studioIndicatorDot.className =
-                'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
-        }
-
-        if (studioIndicatorText) {
-            studioIndicatorText.innerText = 'CAMERA IN REPOSE';
-        }
-
-        if (mirrorDot) {
-            mirrorDot.className =
-                'w-1.5 h-1.5 rounded-full bg-rose-500';
-        }
-
-        if (mirrorBadge) {
-            mirrorBadge.innerText = 'Camera Access Dismissed';
-        }
-
-        if (shutterCaption) {
-            shutterCaption.innerHTML =
-                '<span class="material-symbols-outlined text-[14px] text-rose-500">warning</span> Tekan izinkan untuk menggunakan kamera dummy.';
-        }
-    }
-
-    function openCameraPermissionDialog() {
-
-        dismissedFallback?.classList.add('hidden');
-        dismissedFallback?.classList.remove('flex');
-
-        permissionModal?.classList.remove('hidden');
-
-        if (camLensDot) {
-            camLensDot.className =
-                'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        }
-
-        if (camLensTitle) {
-            camLensTitle.innerText = 'AWAITING CAMERA ACCESS';
-        }
-
-        if (camLensMode) {
-            camLensMode.innerText = 'permission dialog';
-        }
-
-        if (studioIndicatorDot) {
-            studioIndicatorDot.className =
-                'w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]';
-        }
-
-        if (studioIndicatorText) {
-            studioIndicatorText.innerText = 'REQUESTING PERMISSION';
-        }
-
-        if (mirrorDot) {
-            mirrorDot.className =
-                'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
-        }
-
-        if (mirrorBadge) {
-            mirrorBadge.innerText = 'Awaiting Camera Permission';
-        }
-    }
-
-    btnAllowCamera?.addEventListener('click', setCameraAllowedState);
-    btnDismissCamera?.addEventListener('click', setCameraDismissedState);
-    btnTryAgainCamera?.addEventListener('click', openCameraPermissionDialog);
-    btnReopenPermission?.addEventListener('click', openCameraPermissionDialog);
-
-    // =====================================
-    // MIRROR TOGGLE
-    // =====================================
-
-    btnToggleMirror?.addEventListener('click', () => {
-
-        isMirrorOn = !isMirrorOn;
-
-        dummyFeed?.classList.toggle('mirror-active', isMirrorOn);
 
         if (lblMirror) {
-            lblMirror.innerText =
-                isMirrorOn ? 'Mirror: On' : 'Mirror: Off';
+            lblMirror.innerText = isMirrorOn ? 'Mirror: On' : 'Mirror: Off';
         }
 
         if (isCameraAllowed && mirrorBadge) {
             mirrorBadge.innerText =
                 isMirrorOn ? 'Studio Mirror Active' : 'Direct View Active';
         }
+    }
+
+    // =====================================
+    // CAMERA PERMISSION + CAMERA DEVICE
+    // =====================================
+    async function setCameraAllowedState() {
+        try {
+            if (!cameraVideo) {
+                throw new Error('Elemen video dengan id="camera-video" tidak ditemukan.');
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Browser tidak menyediakan akses kamera. Gunakan localhost atau HTTPS.');
+            }
+
+            // Hentikan stream sebelumnya agar tidak ada dua sesi kamera aktif.
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: 'user' },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            cameraVideo.srcObject = cameraStream;
+            cameraVideo.muted = true;
+            cameraVideo.playsInline = true;
+            cameraVideo.style.filter = currentFilterCss;
+            await cameraVideo.play();
+
+            // Perbarui tampilan jika kamera terputus.
+            cameraStream.getVideoTracks().forEach(track => {
+                track.addEventListener('ended', () => {
+                    isCameraAllowed = false;
+                    if (cameraVideo) cameraVideo.srcObject = null;
+                    if (camLensTitle) camLensTitle.innerText = 'CAMERA DISCONNECTED';
+                    if (studioIndicatorText) studioIndicatorText.innerText = 'CAMERA DISCONNECTED';
+                    if (shutterCaption) {
+                        shutterCaption.innerText = 'Koneksi kamera terputus. Tekan Coba Lagi untuk menghubungkan kembali.';
+                    }
+                }, { once: true });
+            });
+
+            isCameraAllowed = true;
+            updateMirrorView();
+
+            permissionModal?.classList.add('hidden');
+            dismissedFallback?.classList.add('hidden');
+            dismissedFallback?.classList.remove('flex');
+
+            if (camLensDot) {
+                camLensDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+            }
+            if (camLensTitle) camLensTitle.innerText = 'STUDIO CAMERA ACTIVE';
+            if (camLensMode) camLensMode.innerText = 'ready to snap';
+            if (studioIndicatorDot) {
+                studioIndicatorDot.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+            }
+            if (studioIndicatorText) studioIndicatorText.innerText = 'READY TO CAPTURE';
+            if (mirrorDot) mirrorDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping';
+            if (shutterCaption) {
+                shutterCaption.innerText = 'Kamera berhasil aktif! Silakan berpose dan ambil foto.';
+            }
+
+            console.info('WHIMSYBOOTH: kamera berhasil diaktifkan.');
+        } catch (error) {
+            console.error('WHIMSYBOOTH: gagal membuka kamera:', error);
+
+            cameraStream?.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+            if (cameraVideo) cameraVideo.srcObject = null;
+            isCameraAllowed = false;
+
+            permissionModal?.classList.add('hidden');
+            dismissedFallback?.classList.remove('hidden');
+            dismissedFallback?.classList.add('flex');
+
+            if (camLensDot) camLensDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+            if (camLensTitle) camLensTitle.innerText = 'CAMERA NOT AVAILABLE';
+            if (camLensMode) camLensMode.innerText = 'access failed';
+            if (studioIndicatorDot) {
+                studioIndicatorDot.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
+            }
+            if (studioIndicatorText) studioIndicatorText.innerText = 'CAMERA NOT AVAILABLE';
+            if (mirrorDot) mirrorDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
+            if (mirrorBadge) mirrorBadge.innerText = 'Camera Access Failed';
+            if (shutterCaption) shutterCaption.innerText = 'Kamera gagal dibuka: ' + error.message;
+
+            alert('Kamera gagal dibuka: ' + error.message);
+        }
+    }
+
+    function setCameraDismissedState() {
+        cameraStream?.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        if (cameraVideo) cameraVideo.srcObject = null;
+        isCameraAllowed = false;
+
+        permissionModal?.classList.add('hidden');
+        dismissedFallback?.classList.remove('hidden');
+        dismissedFallback?.classList.add('flex');
+
+        if (camLensDot) camLensDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        if (camLensTitle) camLensTitle.innerText = 'CAMERA LENS IN REPOSE';
+        if (camLensMode) camLensMode.innerText = 'access denied';
+        if (studioIndicatorDot) {
+            studioIndicatorDot.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]';
+        }
+        if (studioIndicatorText) studioIndicatorText.innerText = 'CAMERA IN REPOSE';
+        if (mirrorDot) mirrorDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
+        if (mirrorBadge) mirrorBadge.innerText = 'Camera Access Dismissed';
+        if (shutterCaption) {
+            shutterCaption.innerText = 'Akses kamera ditolak. Tekan Izinkan Kamera untuk mencoba lagi.';
+        }
+    }
+
+    function openCameraPermissionDialog() {
+        dismissedFallback?.classList.add('hidden');
+        dismissedFallback?.classList.remove('flex');
+        permissionModal?.classList.remove('hidden');
+
+        if (camLensDot) camLensDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        if (camLensTitle) camLensTitle.innerText = 'AWAITING CAMERA ACCESS';
+        if (camLensMode) camLensMode.innerText = 'permission dialog';
+        if (studioIndicatorDot) {
+            studioIndicatorDot.className = 'w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]';
+        }
+        if (studioIndicatorText) studioIndicatorText.innerText = 'REQUESTING PERMISSION';
+        if (mirrorDot) mirrorDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+        if (mirrorBadge) mirrorBadge.innerText = 'Awaiting Camera Permission';
+    }
+
+    btnAllowCamera?.addEventListener('click', event => {
+        event.preventDefault();
+        setCameraAllowedState();
+    });
+
+    btnDismissCamera?.addEventListener('click', event => {
+        event.preventDefault();
+        setCameraDismissedState();
+    });
+
+    btnTryAgainCamera?.addEventListener('click', event => {
+        event.preventDefault();
+        setCameraAllowedState();
+    });
+
+    btnReopenPermission?.addEventListener('click', event => {
+        event.preventDefault();
+        openCameraPermissionDialog();
+    });
+
+    // =====================================
+    // MIRROR TOGGLE
+    // =====================================
+    btnToggleMirror?.addEventListener('click', () => {
+        isMirrorOn = !isMirrorOn;
+        updateMirrorView();
     });
 
     // =====================================
     // FLASH TOGGLE
     // =====================================
-
     document.getElementById('btn-toggle-flash')
         ?.addEventListener('click', () => {
-
             isFlashOn = !isFlashOn;
 
             const flashLabel = document.getElementById('lbl-flash');
@@ -253,13 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // TIMER SELECTOR
     // =====================================
-
     document.querySelectorAll('.timer-opt').forEach(btn => {
-
         btn.addEventListener('click', function () {
-
             document.querySelectorAll('.timer-opt').forEach(b => {
-
                 b.className =
                     'timer-opt px-3 py-1 rounded-full text-[11.5px] font-medium text-[#8D7075] hover:text-[#970046] cursor-pointer';
             });
@@ -274,13 +282,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // FILTER SELECTION
     // =====================================
-
     document.querySelectorAll('.filter-item').forEach(item => {
-
         item.addEventListener('click', function () {
-
             document.querySelectorAll('.filter-item').forEach(filter => {
-
                 filter.classList.remove(
                     'border-2',
                     'border-[#BE185D]',
@@ -337,8 +341,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentFilterCss = this.dataset.filterCss || 'none';
             currentFilterName = this.dataset.title || 'Original';
 
-            if (dummyFeed) {
-                dummyFeed.style.filter = currentFilterCss;
+            if (cameraVideo) {
+                cameraVideo.style.filter = currentFilterCss;
             }
 
             document.querySelectorAll('.slot-photo').forEach(photo => {
@@ -357,18 +361,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // FILTER DRAG WITH MOUSE
     // =====================================
-
     const filterScroll = document.querySelector('.filter-scroll');
 
     if (filterScroll) {
-
         let isDragging = false;
         let hasMoved = false;
         let startX = 0;
         let scrollStart = 0;
 
         filterScroll.addEventListener('mousedown', event => {
-
             if (event.button !== 0) return;
 
             isDragging = true;
@@ -381,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         document.addEventListener('mousemove', event => {
-
             if (!isDragging) return;
 
             const distance = event.pageX - startX;
@@ -397,7 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         document.addEventListener('mouseup', () => {
-
             if (!isDragging) return;
 
             isDragging = false;
@@ -413,12 +412,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         filterScroll.addEventListener('click', event => {
-
             if (filterScroll.dataset.dragged === 'true') {
                 event.preventDefault();
                 event.stopPropagation();
             }
-
         }, true);
     }
 
@@ -426,11 +423,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // SUARA (dibuat dengan Web Audio, tanpa file mp3)
     // Matikan semua suara: window.WB_SOUND = false
     // =====================================
-
     let audioCtx = null;
 
     function getAudio() {
-
         if (window.WB_SOUND === false) return null;
 
         try {
@@ -446,9 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // bunyi "tik" hitung mundur
     function playTick(final) {
-
         const ac = getAudio();
-
         if (!ac) return;
 
         const t = ac.currentTime;
@@ -469,9 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // bunyi shutter kamera: dua klik mekanis (buka-tutup) + sedikit "thunk"
     function playShutter() {
-
         const ac = getAudio();
-
         if (!ac) return;
 
         const t = ac.currentTime;
@@ -484,7 +475,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         [0, 0.085].forEach((offset, idx) => {
-
             const src = ac.createBufferSource();
             const hp = ac.createBiquadFilter();
             const gain = ac.createGain();
@@ -518,12 +508,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // CAPTURE PHOTO
     // =====================================
-
     const captureShutterBtn =
         document.getElementById('btn-capture-shutter');
 
     captureShutterBtn?.addEventListener('click', () => {
-
         if (!isCameraAllowed) {
             openCameraPermissionDialog();
             return;
@@ -547,27 +535,20 @@ document.addEventListener("DOMContentLoaded", () => {
         playTick(false);
 
         const timerInterval = setInterval(() => {
-
             count--;
 
             if (count > 0) {
-
                 if (countdownNumber) {
                     countdownNumber.innerText = count;
                 }
 
                 playTick(count === 1);
-
             } else {
-
                 clearInterval(timerInterval);
-
                 countdownLayer?.classList.add('hidden');
-
                 playShutter();
 
                 if (flashEffect) {
-
                     flashEffect.style.opacity = isFlashOn ? '1' : '0.85';
 
                     setTimeout(() => {
@@ -575,140 +556,109 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 220);
                 }
 
-                captureSnapshot(currentSlot);
-                advanceSlot();
-            }
+                const captured = captureSnapshot(currentSlot);
 
+                if (captured) {
+                    advanceSlot();
+                }
+            }
         }, 750);
     });
 
     // =====================================
     // CAPTURE SNAPSHOT
     // =====================================
-
     function captureSnapshot(slotIndex) {
+        const video = document.getElementById('camera-video');
 
-    // Ambil video kamera asli
-    const video = document.getElementById('camera-video');
-
-    if (!video || !video.srcObject) {
-        alert('Kamera belum aktif.');
-        return;
-    }
-
-    // Pastikan video sudah memiliki ukuran
-    if (!video.videoWidth || !video.videoHeight) {
-        alert('Kamera belum siap. Tunggu sebentar lalu coba lagi.');
-        return;
-    }
-
-    // Gunakan canvas tersembunyi untuk mengambil frame kamera
-    const canvas = document.getElementById('hidden-canvas');
-
-    if (!canvas) {
-        console.error('hidden-canvas tidak ditemukan.');
-        return;
-    }
-
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-
-    canvas.width = width;
-    canvas.height = height;
-
-    const ctx = canvas.getContext('2d');
-
-    // Mirror mengikuti tampilan kamera
-    if (isMirrorOn) {
-        ctx.save();
-        ctx.translate(width, 0);
-        ctx.scale(-1, 1);
-
-        ctx.drawImage(
-            video,
-            0,
-            0,
-            width,
-            height
-        );
-
-        ctx.restore();
-    } else {
-        ctx.drawImage(
-            video,
-            0,
-            0,
-            width,
-            height
-        );
-    }
-
-    // Ambil hasil foto asli dari kamera
-    const imageUrl = canvas.toDataURL('image/png');
-
-    // Simpan foto asli ke slot
-    capturedImages[slotIndex] = imageUrl;
-
-    // Masukkan foto asli ke photostrip
-    const slotEl = document.querySelector(
-        `.strip-slot[data-index="${slotIndex}"]`
-    );
-
-    if (slotEl) {
-
-        const textEl = slotEl.querySelector('.slot-text');
-        const photoEl = slotEl.querySelector('.slot-photo');
-
-        if (photoEl) {
-            photoEl.style.backgroundImage = `url("${imageUrl}")`;
-            photoEl.style.filter = currentFilterCss;
-            photoEl.classList.remove('hidden');
+        if (!video || !video.srcObject) {
+            alert('Kamera belum aktif. Klik Izinkan Kamera terlebih dahulu.');
+            return false;
         }
 
-        textEl?.classList.add('hidden');
+        if (!video.videoWidth || !video.videoHeight) {
+            alert('Kamera belum siap. Tunggu sebentar lalu coba lagi.');
+            return false;
+        }
 
-        slotEl.dataset.filled = 'true';
+        const canvas = document.getElementById('hidden-canvas');
 
-        totalSnapped = Math.min(
-            slotCount,
-            totalSnapped + 1
+        if (!canvas) {
+            console.error('hidden-canvas tidak ditemukan.');
+            return false;
+        }
+
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+
+        // Mirror mengikuti tampilan kamera
+        if (isMirrorOn) {
+            ctx.save();
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, width, height);
+            ctx.restore();
+        } else {
+            ctx.drawImage(video, 0, 0, width, height);
+        }
+
+        const imageUrl = canvas.toDataURL('image/png');
+
+        capturedImages[slotIndex] = imageUrl;
+
+        const slotEl = document.querySelector(
+            `.strip-slot[data-index="${slotIndex}"]`
         );
 
-        if (snappedCountEl) {
-            snappedCountEl.innerText = totalSnapped;
+        if (slotEl) {
+            const textEl = slotEl.querySelector('.slot-text');
+            const photoEl = slotEl.querySelector('.slot-photo');
+
+            if (photoEl) {
+                photoEl.style.backgroundImage = `url("${imageUrl}")`;
+                photoEl.style.filter = currentFilterCss;
+                photoEl.classList.remove('hidden');
+            }
+
+            textEl?.classList.add('hidden');
+            slotEl.dataset.filled = 'true';
+
+            totalSnapped = Math.min(slotCount, totalSnapped + 1);
+
+            if (snappedCountEl) {
+                snappedCountEl.innerText = totalSnapped;
+            }
         }
+
+        if (shutterCaption) {
+            shutterCaption.innerHTML =
+                `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">check_circle</span> Pose 0${slotIndex} captured with fairy charm!`;
+        }
+
+        return true;
     }
 
-    if (shutterCaption) {
-        shutterCaption.innerHTML =
-            `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">check_circle</span> Pose 0${slotIndex} captured with fairy charm!`;
-    }
-}
     // =====================================
     // ADVANCE SLOT
     // =====================================
-
     function advanceSlot() {
-
         const emptySlots = [];
 
         document.querySelectorAll('.strip-slot').forEach(slot => {
-
-            if (
-                !slot.dataset.filled ||
-                slot.dataset.filled === 'false'
-            ) {
+            if (!slot.dataset.filled || slot.dataset.filled === 'false') {
                 emptySlots.push(parseInt(slot.dataset.index, 10));
             }
         });
 
         if (emptySlots.length > 0) {
-
             currentSlot = emptySlots[0];
             markCurrent();
-
         } else {
-
             markCurrent();
 
             setTimeout(() => {
@@ -718,170 +668,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =====================================
-    // RETAKE INDIVIDUAL SLOT (delegasi, karena slot dibuat ulang tiap ganti template)
-    // =====================================
-
-    document.getElementById('main-strip-canvas')
-        ?.addEventListener('click', function (event) {
-
-            const slot = event.target.closest('.strip-slot');
-
-            if (!slot) return;
-
-            const idx = parseInt(slot.dataset.index, 10);
-
-            currentSlot = idx;
-            markCurrent();
-
-            const photoEl = slot.querySelector('.slot-photo');
-            const textEl = slot.querySelector('.slot-text');
-
-            if (slot.dataset.filled === 'true') {
-
-                photoEl?.classList.add('hidden');
-                textEl?.classList.remove('hidden');
-
-                slot.dataset.filled = 'false';
-                delete capturedImages[idx];
-
-                totalSnapped = Math.max(0, totalSnapped - 1);
-
-                if (snappedCountEl) {
-                    snappedCountEl.innerText = totalSnapped;
-                }
-
-                if (shutterCaption) {
-                    shutterCaption.innerHTML =
-                        `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">restart_alt</span> Slot 0${idx} siap dijepret ulang!`;
-                }
-            }
-        });
-
-    // =====================================
-    // RETAKE ALL
-    // =====================================
-
-    document.getElementById('btn-retake-all')
-        ?.addEventListener('click', () => {
-
-            document.querySelectorAll('.strip-slot').forEach(slot => {
-
-                slot.querySelector('.slot-photo')?.classList.add('hidden');
-                slot.querySelector('.slot-text')?.classList.remove('hidden');
-
-                slot.dataset.filled = 'false';
-            });
-
-            Object.keys(capturedImages).forEach(key => {
-                delete capturedImages[key];
-            });
-
-            totalSnapped = 0;
-
-            if (snappedCountEl) {
-                snappedCountEl.innerText = '0';
-            }
-
-            currentSlot = 1;
-
-            if (dummyMirrorImg) {
-                dummyMirrorImg.src = dummyPoseImages[0];
-            }
-
-            markCurrent();
-
-            if (shutterCaption) {
-                shutterCaption.innerHTML =
-                    `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">touch_app</span> Click to capture aesthetic photobooth moment`;
-            }
-        });
-
-    // =====================================
-    // SAVE STRIP
-    // =====================================
-
-    document.getElementById('btn-save-strip')
-        ?.addEventListener('click', () => {
-            modalSave?.classList.remove('hidden');
-        });
-
-    document.getElementById('modal-save-close')
-        ?.addEventListener('click', () => {
-            modalSave?.classList.add('hidden');
-        });
-
-    document.getElementById('btn-download-strip')
-        ?.addEventListener('click', goToDownloadPage);
-
-    // =====================================
-    // KE HALAMAN DOWNLOAD (dengan transisi tongkat peri)
-    // Download file + wajib login ada di halaman download.
-    // =====================================
-
-    function goToDownloadPage() {
-
-        const tpl = currentTemplate;
-
-        const images = Array.from({ length: slotCount }, (_, idx) =>
-            capturedImages[idx + 1] || dummyPoseImages[idx % dummyPoseImages.length]
-        );
-
-        try {
-            sessionStorage.setItem('wb_strip', JSON.stringify({
-                images: images,
-                bg: tpl && tpl.kind === 'classic' ? tpl.bg : '#FFFFFF',
-                frame: currentThemeFrameName,
-                template: tpl
-            }));
-        } catch (e) {}
-
-        modalSave?.classList.add('hidden');
-
-        const target = window.WB_DOWNLOAD_URL || '/download';
-
-        if (window.WBWand) {
-            window.WBWand.play(target);
-        } else {
-            window.location.href = target;
-        }
-    }
-
-    // =====================================
-    // FRAME CAROUSEL
-    // =====================================
-
-    const carouselTrack = document.getElementById('carousel-track');
-
-    document.getElementById('carousel-prev')
-        ?.addEventListener('click', () => {
-
-            carouselTrack?.scrollBy({
-                left: -320,
-                behavior: 'smooth'
-            });
-        });
-
-    document.getElementById('carousel-next')
-        ?.addEventListener('click', () => {
-
-            carouselTrack?.scrollBy({
-                left: 320,
-                behavior: 'smooth'
-            });
-        });
-
-    // =====================================
     // TEMPLATE (FRAME) + STRIP BUILDER
     // Jumlah slot foto mengikuti template (1 / 2 / 3 / 4 / ...)
     // Daftar template: WBTpl.list()  (dari wb-templates.js / window.WB_TEMPLATES)
     // =====================================
-
-    const CARD_BASE =
-        'frame-card flex-1 min-w-[270px] sm:min-w-[290px] p-4 rounded-3xl border border-[#FBCFE8] bg-white hover:border-[#BE185D]/60 shadow-sm cursor-pointer transition-all duration-300 flex flex-col justify-between';
-
-    const CARD_ACTIVE =
-        'frame-card flex-1 min-w-[270px] sm:min-w-[290px] p-4 rounded-3xl border-2 border-[#BE185D] bg-[#FFE4E8]/50 shadow-[0_8px_24px_rgba(244,114,182,0.22)] cursor-pointer transition-all duration-300 transform scale-[1.03] flex flex-col justify-between';
-
     const stripCanvas = document.getElementById('main-strip-canvas');
     const snappedTotalEl = document.getElementById('snapped-total');
     const templateList = window.WBTpl ? window.WBTpl.list() : [];
@@ -905,6 +695,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function slotInner(i, n, compact) {
         const num = String(i + 1).padStart(2, '0');
+
         return `
             <div class="slot-text flex flex-col items-center justify-center">
                 <span class="font-serif ${compact ? 'text-[15px]' : 'text-[20px]'} text-[#970046] font-medium leading-tight">${num}</span>
@@ -915,7 +706,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Tandai slot yang sedang aktif (ring untuk strip biasa, kotak highlight untuk template gambar)
     function markCurrent() {
-
         document.querySelectorAll('.strip-slot').forEach(slot => {
             slot.classList.remove('ring-2', 'ring-[#BE185D]');
         });
@@ -943,17 +733,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function buildStrip() {
+        if (!stripCanvas) {
+            console.error('Elemen #main-strip-canvas tidak ditemukan di halaman.');
+            return;
+        }
 
-        if (!stripCanvas || !currentTemplate) return;
+        if (!currentTemplate) return;
 
         const t = currentTemplate;
         const n = t.slots.length;
         let html = '';
 
         if (t.kind === 'classic') {
-
             stripCanvas.className =
                 'w-full px-5 py-4 rounded-2xl border-2 border-[#FBCFE8] shadow-inner flex flex-col items-center transition-all duration-300';
+
             stripCanvas.style.backgroundColor = t.bg;
 
             let slots = '';
@@ -976,11 +770,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span>MADE WITH A LITTLE MAGIC</span>
                     <span class="text-[12px] text-[#BE185D]">♡</span>
                 </div>`;
-
         } else {
-
             stripCanvas.className =
                 'w-full rounded-2xl border-2 border-[#FBCFE8] shadow-inner overflow-hidden transition-all duration-300';
+
             stripCanvas.style.backgroundColor = '#FFFFFF';
 
             const imgTag = (z) => `
@@ -992,6 +785,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             for (let i = 0; i < n; i++) {
                 const b = window.WBTpl.slotBox(t, i);
+
                 slots += `
                     <div class="strip-slot absolute bg-[#FFE4E8]/90 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden"
                          data-index="${i + 1}"
@@ -1014,9 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // pulihkan foto yang sudah diambil (kalau user ganti template di tengah sesi)
         for (let i = 1; i <= n; i++) {
-
             const url = capturedImages[i];
-
             if (!url) continue;
 
             const slotEl = stripCanvas.querySelector(`.strip-slot[data-index="${i}"]`);
@@ -1033,7 +825,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function applyTemplate(t) {
-
         currentTemplate = t;
         slotCount = t.slots.length;
         currentThemeFrameName = t.name;
@@ -1055,7 +846,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         currentSlot = firstEmpty || 1;
-
         buildStrip();
         markCurrent();
 
@@ -1069,138 +859,154 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- kartu template di carousel ----------
+    // ========================================
+    // INITIALIZE TEMPLATE DARI HOME
+    // ========================================
+    function initSelectedTemplate() {
+        const selectedFrameId = window.WB_SELECTED_FRAME_ID;
+        const selectedTemplate = templateById[selectedFrameId];
 
-    function addCountBadge(card, t) {
+        if (!selectedTemplate) {
+            console.error('Frame pilihan tidak ditemukan.', {
+                diminta: selectedFrameId,
+                tersedia: templateList.map(t => t.id)
+            });
 
-        const thumb = card.firstElementChild;
+            // Hapus tanda // di bawah ini jika ingin menahan halaman saat debugging:
+            // return;
 
-        if (!thumb || thumb.querySelector('.wb-count-badge')) return;
-
-        const badge = document.createElement('span');
-
-        badge.className =
-            'wb-count-badge absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white/90 text-[#970046] text-[10.5px] font-bold shadow-xs border border-[#FBCFE8]';
-        badge.textContent = `${t.slots.length} foto`;
-
-        thumb.classList.add('relative');
-        thumb.appendChild(badge);
-    }
-
-    function buildCard(t) {
-
-        const card = document.createElement('div');
-
-        card.className = CARD_BASE;
-        card.dataset.templateId = t.id;
-        card.dataset.frameName = t.name;
-
-        let thumb;
-
-        if (t.kind === 'image') {
-
-            thumb = `<img src="${esc(t.image)}" alt="${esc(t.name)}" draggable="false"
-                          class="max-h-full w-auto object-contain rounded-md shadow-lg select-none">`;
-
-        } else {
-
-            const boxes = t.slots.map(() =>
-                '<div class="flex-1 rounded-md bg-white/80 border border-white"></div>'
-            ).join('');
-
-            thumb = `<div class="h-full w-20 py-1 flex flex-col gap-1.5">${boxes}</div>`;
+            window.location.replace(window.WB_HOME_URL || '/home');
+            return;
         }
 
-        const bg = t.accent ||
-            'radial-gradient(circle at 35% 30%, #FFE4E8 0%, #FBCFE8 50%, #FDA4AF 100%)';
-
-        card.innerHTML = `
-            <div class="w-full h-52 rounded-2xl relative overflow-hidden flex items-center justify-center p-3 border border-white/60 shadow-inner" style="background:${bg}">
-                ${thumb}
-            </div>
-            <div class="mt-4 px-1 text-left">
-                <p class="text-[17px] font-bold text-[#211a1b]">${esc(t.name)}</p>
-                <p class="text-[13px] text-[#594046] mt-0.5">${esc(t.tagline || (t.slots.length + ' foto'))}</p>
-            </div>`;
-
-        return card;
+        applyTemplate(selectedTemplate);
     }
 
-    function selectCard(selected) {
+    // Jalankan inisialisasi (WAJIB dipanggil, kalau tidak strip tidak akan muncul)
+    initSelectedTemplate();
 
-        document.querySelectorAll('.frame-card').forEach(frameCard => {
+    // =====================================
+    // RETAKE INDIVIDUAL SLOT (delegasi, karena slot dibuat ulang tiap ganti template)
+    // =====================================
+    stripCanvas?.addEventListener('click', function (event) {
+        const slot = event.target.closest('.strip-slot');
 
-            frameCard.className = CARD_BASE;
+        if (!slot) return;
 
-            // Hapus centang dari semua frame
-            frameCard.querySelectorAll('.material-symbols-outlined')
-                .forEach(icon => {
-                    if (icon.innerText.trim() === 'check_circle') {
-                        icon.remove();
-                    }
-                });
-        });
+        const idx = parseInt(slot.dataset.index, 10);
 
-        selected.className = CARD_ACTIVE;
-    }
+        currentSlot = idx;
+        markCurrent();
 
-    function initTemplateCards() {
+        const photoEl = slot.querySelector('.slot-photo');
+        const textEl = slot.querySelector('.slot-text');
 
-        if (!carouselTrack) return;
+        if (slot.dataset.filled === 'true') {
+            photoEl?.classList.add('hidden');
+            textEl?.classList.remove('hidden');
 
-        // kartu statis yang templatenya tidak ada di daftar -> buang
-        carouselTrack.querySelectorAll('.frame-card[data-template-id]').forEach(card => {
-            if (!templateById[card.dataset.templateId]) card.remove();
-        });
+            slot.dataset.filled = 'false';
+            delete capturedImages[idx];
 
-        templateList.forEach(t => {
+            totalSnapped = Math.max(0, totalSnapped - 1);
 
-            let card = carouselTrack.querySelector(
-                `.frame-card[data-template-id="${t.id}"]`
-            );
-
-            if (!card) {
-                card = buildCard(t);
-                carouselTrack.appendChild(card);
+            if (snappedCountEl) {
+                snappedCountEl.innerText = totalSnapped;
             }
 
-            addCountBadge(card, t);
+            if (shutterCaption) {
+                shutterCaption.innerHTML =
+                    `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">restart_alt</span> Slot 0${idx} siap dijepret ulang!`;
+            }
+        }
+    });
 
-            card.addEventListener('click', function () {
-                selectCard(this);
-                applyTemplate(t);
+    // =====================================
+    // RETAKE ALL
+    // =====================================
+    document.getElementById('btn-retake-all')
+        ?.addEventListener('click', () => {
+            document.querySelectorAll('.strip-slot').forEach(slot => {
+                slot.querySelector('.slot-photo')?.classList.add('hidden');
+                slot.querySelector('.slot-text')?.classList.remove('hidden');
+                slot.dataset.filled = 'false';
             });
+
+            Object.keys(capturedImages).forEach(key => {
+                delete capturedImages[key];
+            });
+
+            totalSnapped = 0;
+
+            if (snappedCountEl) {
+                snappedCountEl.innerText = '0';
+            }
+
+            currentSlot = 1;
+            markCurrent();
+
+            if (shutterCaption) {
+                shutterCaption.innerHTML =
+                    `<span class="material-symbols-outlined text-[14px] text-[#BE185D]">touch_app</span> Click to capture aesthetic photobooth moment`;
+            }
         });
 
-        if (templateList.length) {
+    // =====================================
+    // SAVE STRIP
+    // =====================================
+    document.getElementById('btn-save-strip')
+        ?.addEventListener('click', () => {
+            modalSave?.classList.remove('hidden');
+        });
 
-            const first = templateList[0];
+    document.getElementById('modal-save-close')
+        ?.addEventListener('click', () => {
+            modalSave?.classList.add('hidden');
+        });
 
-            selectCard(
-                carouselTrack.querySelector(`.frame-card[data-template-id="${first.id}"]`)
-            );
+    document.getElementById('btn-download-strip')
+        ?.addEventListener('click', goToDownloadPage);
 
-            applyTemplate(first);
+    // =====================================
+    // KE HALAMAN DOWNLOAD (dengan transisi tongkat peri)
+    // Download file + wajib login ada di halaman download.
+    // =====================================
+    function goToDownloadPage() {
+        const tpl = currentTemplate;
+
+        const images = Array.from({ length: slotCount }, (_, idx) =>
+            capturedImages[idx + 1] || dummyPoseImages[idx % dummyPoseImages.length]
+        );
+
+        try {
+            sessionStorage.setItem('wb_strip', JSON.stringify({
+                images: images,
+                bg: tpl && tpl.kind === 'classic' ? tpl.bg : '#FFFFFF',
+                frame: currentThemeFrameName,
+                template: tpl
+            }));
+        } catch (e) {}
+
+        modalSave?.classList.add('hidden');
+
+        const target = window.WB_DOWNLOAD_URL || '/download';
+
+        if (window.WBWand) {
+            window.WBWand.play(target);
+        } else {
+            window.location.href = target;
         }
     }
-
-    initTemplateCards();
 
     // =====================================
     // NAVBAR ACTIVE LINK
     // =====================================
-
     function updateActiveNavLink(hash) {
-
         document.querySelectorAll('.nav-item-link').forEach(link => {
-
             if (link.getAttribute('href') === hash) {
-
                 link.className =
                     'nav-item-link px-4 py-2 rounded-full text-[13.5px] font-bold text-[#970046] bg-[#FFE4E8] hover:bg-[#FBCFE8] cursor-pointer transition-all active:scale-95';
-
             } else {
-
                 link.className =
                     'nav-item-link px-4 py-2 rounded-full text-[13.5px] font-semibold text-[#594046] hover:text-[#970046] hover:bg-[#FFF0F4] cursor-pointer transition-all active:scale-95';
             }
@@ -1210,7 +1016,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const brandLogo = document.getElementById('nav-brand-logo');
 
     brandLogo?.addEventListener('click', function (event) {
-
         event.preventDefault();
 
         window.scrollTo({
@@ -1223,19 +1028,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('.nav-item-link, .footer-nav-link')
         .forEach(link => {
-
             link.addEventListener('click', function (event) {
-
                 const targetId = this.getAttribute('href');
 
                 if (targetId && targetId.startsWith('#')) {
-
                     event.preventDefault();
 
                     const targetEl = document.querySelector(targetId);
 
                     if (targetEl) {
-
                         targetEl.scrollIntoView({
                             behavior: 'smooth'
                         });
@@ -1249,7 +1050,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // GUIDE MODAL
     // =====================================
-
     document.getElementById('nav-guide-btn')
         ?.addEventListener('click', () => {
             modalGuide?.classList.remove('hidden');
@@ -1267,7 +1067,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById('modal-guide-start')
         ?.addEventListener('click', () => {
-
             modalGuide?.classList.add('hidden');
 
             document.getElementById('studio')
@@ -1279,7 +1078,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // LOGIN MODAL
     // =====================================
-
     document.getElementById('nav-login-btn')
         ?.addEventListener('click', () => {
             modalLogin?.classList.remove('hidden');
@@ -1298,11 +1096,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // MODAL CLICK OUTSIDE
     // =====================================
-
     [modalGuide, modalLogin, modalSave].forEach(modal => {
-
         modal?.addEventListener('click', event => {
-
             if (event.target === modal) {
                 modal.classList.add('hidden');
             }
@@ -1312,26 +1107,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // FAQ ACCORDION
     // =====================================
-
     document.querySelectorAll('.faq-item').forEach(item => {
-
         item.addEventListener('click', function () {
-
             const answer = this.querySelector('.faq-answer');
             const icon = this.querySelector('.material-symbols-outlined');
 
             if (!answer) return;
 
             if (answer.classList.contains('hidden')) {
-
                 answer.classList.remove('hidden');
 
                 if (icon) {
                     icon.style.transform = 'rotate(180deg)';
                 }
-
             } else {
-
                 answer.classList.add('hidden');
 
                 if (icon) {
@@ -1344,44 +1133,36 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================
     // CONCIERGE CTA
     // =====================================
-
     document.getElementById('btn-concierge')
         ?.addEventListener('click', () => {
-
             alert(
                 '🌸 Tim Atelier Concierge Whimshybooth siap membantu event photobooth impian Anda!'
             );
         });
 
-    // =====================================
-    // NAVBAR HIDE WHEN ENTER STUDIO
-    // =====================================
+    // // =====================================
+    // // NAVBAR HIDE WHEN ENTER STUDIO
+    // // =====================================
+    // const navbar = document.querySelector('header');
+    // const studioSection = document.querySelector('#studio');
 
-    const navbar = document.querySelector('header');
-    const studioSection = document.querySelector('#studio');
+    // if (navbar && studioSection) {
+    //     function checkNavbar() {
+    //         const studioTop =
+    //             studioSection.getBoundingClientRect().top;
 
-    if (navbar && studioSection) {
+    //         const studioBottom =
+    //             studioSection.getBoundingClientRect().bottom;
 
-        function checkNavbar() {
+    //         if (studioTop <= 100 && studioBottom > 100) {
+    //             navbar.classList.add('navbar-hidden');
+    //         } else {
+    //             navbar.classList.remove('navbar-hidden');
+    //         }
+    //     }
 
-            const studioTop =
-                studioSection.getBoundingClientRect().top;
-
-            const studioBottom =
-                studioSection.getBoundingClientRect().bottom;
-
-            if (studioTop <= 100 && studioBottom > 100) {
-                navbar.classList.add('navbar-hidden');
-            } else {
-                navbar.classList.remove('navbar-hidden');
-            }
-        }
-
-        window.addEventListener('scroll', checkNavbar);
-        window.addEventListener('resize', checkNavbar);
-
-        checkNavbar();
-    }
-
-
+    //     window.addEventListener('scroll', checkNavbar);
+    //     window.addEventListener('resize', checkNavbar);
+    //     checkNavbar();
+    // }
 });
